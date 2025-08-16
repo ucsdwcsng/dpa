@@ -96,4 +96,12 @@ ylabel('h(n,f)')
 set(gca, 'fontsize', 14)
 title('h(n,f) with Frequencies')
 
+% Plotting the distance squared for each antenna
+figure(3); clf
+bar(dist_sq);
+grid on;
+xlabel('Antenna Index');
+ylabel('Distance Squared ||h - \Phi_{ant}||^2');
+title('Distance Squared per Antenna');
+set(gca, 'fontsize', 14);
 
