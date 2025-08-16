@@ -23,7 +23,7 @@ theta_deg = 30;
 angle_list = [-theta_deg, theta_deg]; %beam pointing angles
 bw_fraction = [.5, .5]; % fraction of bandwidth for each beam
 
-algo_type = 'FSDA'; % 'MATH' or 'FSDA'
+algo_type = 'MATH'; % 'MATH' or 'FSDA'
 
 param = get_fsda_param(N, BW);
 freq_axis = param.freq_axis;
@@ -31,6 +31,8 @@ array = param.array;
 M = param.M;
 u = param.u;
 del_grid = param.del_grid;
+
+k_constant_algo = 'best_perf'; % 'best_perf', 'baseline'
 
 %% Get G_fs degired freq-space images
 % Contains 0s and 1s matrix
@@ -42,7 +44,7 @@ switch algo_type
     case 'FSDA'
         [weights_est, delay_est, delay_phase_profile] = fs2da(param, G_fs_desired);
     case 'MATH'
-        [weights_est, delay_est, delay_phase_profile] = fs2da_maths(param, angle_list, bw_fraction);
+        [weights_est, delay_est, delay_phase_profile] = fs2da_maths(param, angle_list, bw_fraction, k_constant_algo);
 end
 %% DAFS: Inverse FSDA to visualize the freq-space beams
 
@@ -67,11 +69,13 @@ angle_axis = repelem(angle_list, counts);
 angle_axis = angle_axis(1:M);
 angle_axis_rad = deg2rad(angle_axis);
 n_axis = (1:N)';                                % antenna indices
-Phi_ant = n_axis .* pi .* sin(angle_axis_rad);  % N x M matrix
+delay_phase_profile_axis = repelem(delay_phase_profile, 1, counts);
+Phi_ant = n_axis .* pi .* sin(angle_axis_rad) + 2*pi.*delay_phase_profile_axis(:, 1:M);  % N x M matrix
+Phi_ant = Phi_ant-mean(Phi_ant, 2);
 
 % compute error d(n) ||h - Phi_ant||^2
 diffs = Phi_ant - h;          % [N x M]
-dist_sq = sum(abs(diffs).^2, 2);  % [N x 1], distance per row
+dist_sq = rms(abs(diffs).^2, 2);  % [N x 1], distance per row
 
 disp(['Distances: [', num2str(dist_sq.', '%.2f '), ']'])
 mean_val = mean(dist_sq);
@@ -105,3 +109,4 @@ ylabel('Distance Squared ||h - \Phi_{ant}||^2');
 title('Distance Squared per Antenna');
 set(gca, 'fontsize', 14);
 
+%% 

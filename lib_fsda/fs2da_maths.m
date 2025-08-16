@@ -1,4 +1,4 @@
-function [weights_est, delays_est, k_mat] = fs2da_maths(param, angle_list, bw_fraction)
+function [weights_est, delays_est, k_mat] = fs2da_maths(param, angle_list, bw_fraction, k_constant_algo)
 %FS2DA_MATHS Get flexible beams from math formula
 %   Supports arbitrary number of beams, beam directions, beam bandwidth
 %   Input:
@@ -12,8 +12,11 @@ function [weights_est, delays_est, k_mat] = fs2da_maths(param, angle_list, bw_fr
 %   Author: Ish Jain
 %   Date created: Aug 2022
 %--------------------------------------
+% FS2DA_MATHS - Example function with default argument
 
-k_constant_algo = 'best_perf';%'min_delay';
+if nargin < 4 || isempty(k_constant_algo)
+    k_constant_algo = 'best_perf';%'min_delay';
+end
 
 N_beams = length(angle_list);
 assert(sum(bw_fraction)<=1)
@@ -80,6 +83,11 @@ else
                 k_all(N_beams)=0;
                 for bidx = N_beams-1:-1:1
                     k_all(bidx) = round((n*sind((angle_list(N_beams))) + 2*k_all(N_beams) -  n*sind(angle_list(bidx)))/2);
+                end
+            case 'baseline'
+                k_all(N_beams)=0;
+                for bidx = N_beams-1:-1:1
+                    k_all(bidx) = 0;
                 end
         end
         
