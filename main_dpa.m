@@ -11,14 +11,17 @@
 %  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+clc
 addpath('lib_fsda')
 clearvars
 
+%%
 N = 16;      % Number of antennas
 BW = 1000e6;   % Bandwidth in Hz
 
-angle_list = [-30, 0, 30,]; %beam pointing angles
-bw_fraction = [.4, .3, .3]; % fraction of bandwidth for each beam
+theta_deg = 30;
+angle_list = [-theta_deg, theta_deg]; %beam pointing angles
+bw_fraction = [.5, .5]; % fraction of bandwidth for each beam
 
 algo_type = 'FSDA'; % 'MATH' or 'FSDA'
 
@@ -43,10 +46,54 @@ switch algo_type
 end
 %% DAFS: Inverse FSDA to visualize the freq-space beams
 
-[G_fs_est, w_fa] = da2fs(param, weights_est,delay_est);
+[G_fs_est, w_fa] = da2fs(param, weights_est, delay_est);
 
 %% Plot freq-antenna image
-plot_dpa_beam_and_weights(param, G_fs_desired, G_fs_est, weights_est, delay_est);
+% plot_dpa_beam_and_weights(param, G_fs_desired, G_fs_est, weights_est, delay_est);
+% 
+% colormap(hot)
 
-colormap(hot)
+%% 
+% computing error between h(𝑛,𝑓) and Phi_ant
+
+% computing h(𝑛,𝑓)=Φ𝑛+2𝜋𝑓𝜏𝑛
+ant_axis = 1:N;
+phases = angle(weights_est);
+h = phases.' + 2*pi*delay_est.'*freq_axis;
+
+% computing Phi_ant
+counts = round(M * bw_fraction / sum(bw_fraction));
+angle_axis = repelem(angle_list, counts);
+angle_axis = angle_axis(1:M);
+angle_axis_rad = deg2rad(angle_axis);
+n_axis = (1:N)';                                % antenna indices
+Phi_ant = n_axis .* pi .* sin(angle_axis_rad);  % N x M matrix
+
+% compute error d(n) ||h - Phi_ant||^2
+diffs = Phi_ant - h;          % [N x M]
+dist_sq = sum(abs(diffs).^2, 2);  % [N x 1], distance per row
+
+disp(['Distances: [', num2str(dist_sq.', '%.2f '), ']'])
+mean_val = mean(dist_sq);
+std_val  = std(dist_sq);
+fprintf('Mean distance = %.2f, Std = %.2f\n', mean_val, std_val);
+
+%% 
+% plotting
+figure(1); clf
+plot(freq_axis/1e6, Phi_ant.', LineWidth=2)
+grid on; grid minor; hold on;
+xlabel('Frequency (in MHz)')
+ylabel('\Phi_{ant}')
+set(gca, 'fontsize', 14)
+title('\Phi_{ant} with Frequencies')
+
+figure(2); clf
+plot(freq_axis/1e6, h.', LineWidth=2)
+grid on; grid minor; hold on;
+xlabel('Frequency (in MHz)')
+ylabel('h(n,f)')
+set(gca, 'fontsize', 14)
+title('h(n,f) with Frequencies')
+
 
