@@ -1,6 +1,6 @@
 % main_dpa.m
 %
-% Author: Ish Jain
+% Author: Ish Jain, Rohith Reddy
 % 
 % Revision 10/3/22
 %   Simplified code for testing the functionality of delay phased array (DPA)

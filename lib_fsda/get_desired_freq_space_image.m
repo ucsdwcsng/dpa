@@ -46,6 +46,10 @@ param.num_freq = zeros(N_angles,1);
 param.freq_idx_mat = zeros(N_angles, M);
 param.angle_idx_mat = zeros(N_angles,1);
 
+N_dim1_freq   = size(G_fs_desired, 1);
+N_dim2_angles = size(G_fs_desired, 2);
+wrapidx = @(idx, N) mod(idx-1, N) + 1;   % maps ...,-1,0,1,... -> 1..N
+
 % Loop over all angles
 for aid = 1:N_angles
     angle_u = angle_list_sin_theta(aid);
@@ -62,9 +66,15 @@ for aid = 1:N_angles
     end
     angle_start = angle_idx - angle_width_nbr_half+1;
     angle_end = angle_idx + angle_width_nbr_half;
-    
+    angle_idx_array = angle_start:angle_end;
     freq_idx_array = freq_start:freq_end(aid);
-    G_fs_desired(freq_idx_array, angle_start:angle_end) = 1;
+
+    % Wrap them to valid MATLAB indices
+    angle_idx_wrapped = wrapidx(angle_idx_array, N_dim2_angles); % e.g., [-1,0,1] -> [N,1,2]
+    freq_idx_wrapped  = wrapidx(freq_idx_array,  N_dim1_freq);
+    
+    % Assign block
+    G_fs_desired(freq_idx_wrapped, angle_idx_wrapped) = 1;
 
     % get freq index and angle index to return - used later in final
     % meteric analysis
