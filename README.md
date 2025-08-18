@@ -21,10 +21,10 @@ radiation of each band in different chosen beam directions.
 - Change `algo_type` to `MATH` to plot beam patterns computed through maths formula for delays and phase values
 
 
-## CIte our paper
-mmFlexible: Flexible Directional Frequency Multiplexing for Multi-user mmWave Networks [[pdf]](https://wcsng.ucsd.edu/files/mmflexible.pdf)
+## Cite our paper
 
-Authors: Ish Kumar Jain, Rohith Reddy Vennam, Raghav Subbaraman, Dinesh Bharadia
+- **mmFlexible: Flexible Directional Frequency Multiplexing for Multi-user mmWave Networks** [[pdf]](https://wcsng.ucsd.edu/files/mmflexible.pdf)  
+  *Authors*: Ish Kumar Jain, Rohith Reddy Vennam, Raghav Subbaraman, Dinesh Bharadia — *Infocom 2023*
 
-Infocom 2023
-
+- **Decoupling Control & Data Beams in Wideband Multi-antenna Networks**  
+  *Authors*: Ish Kumar Jain, Rohith Reddy Vennam, Dinesh Bharadia — *Mobihoc 2025*
